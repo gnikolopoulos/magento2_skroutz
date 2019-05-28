@@ -1,0 +1,74 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+	<system>
+		<tab id="interactivedesign" sortOrder="999" translate="label">
+			<label>Interactive Design</label>
+		</tab>
+
+		<section id="skroutz" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
+			<label>Skroutz XML Feed</label>
+			<tab>interactivedesign</tab>
+			<resource>ID_Skroutz::config_id_skroutz</resource>
+			<group id="general" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
+				<label>General Configuration</label>
+				<field id="store_name" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+					<label>Store name</label>
+					<comment/>
+				</field>
+
+				<field id="xml_filename" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+					<label>XML file name</label>
+					<comment/>
+				</field>
+
+				<field id="xml_path" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+					<label>Absolute path to XML file</label>
+					<comment/>
+				</field>
+			</group>
+
+			<group id="product_collection" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
+				<label>Product Collection Configuration</label>
+
+				<field id="excluded_categories" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+					<label>Excluded categories</label>
+					<comment/>
+				</field>
+
+				<field id="show_out_of_stock" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="select">
+					<label>Show out of stock products</label>
+					<comment/>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+			</group>
+
+			<group id="messages" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
+				<label>Messages Configuration</label>
+
+				<field id="available" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+					<label>Available message</label>
+					<comment/>
+				</field>
+
+				<field id="out_of_stock" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+					<label>Out of stock message</label>
+					<comment/>
+				</field>
+
+				<field id="backorder" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+					<label>Backorder message</label>
+					<comment/>
+				</field>
+			</group>
+
+			<group id="analytics" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
+				<label>Skroutz Analytics</label>
+
+				<field id="shop_id" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+					<label>Shop ID</label>
+					<comment/>
+				</field>
+			</group>
+		</section>
+	</system>
+</config>

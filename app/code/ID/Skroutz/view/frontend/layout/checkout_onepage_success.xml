@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<body>
+  <referenceContainer name="order.success.additional.info">
+    <block class="ID\Skroutz\Block\Checkout\Onepage\Success" name="id.order.success" template="ID_Skroutz::order/analytics.phtml" after="-"></block>
+  </referenceContainer>
+</body>

@@ -1,0 +1,22 @@
+{
+    "name": "id/module-skroutz",
+    "description": "Skroutz.gr XML Feed Generator",
+    "type": "magento2-module",
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "email": "info@interactive-design.gr",
+            "name": "Interactive Design"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "ID\\Skroutz\\": ""
+        }
+    }
+}
