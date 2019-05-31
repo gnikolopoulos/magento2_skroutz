@@ -51,6 +51,7 @@ class InstallData implements InstallDataInterface
     ) {
         $eavSetup = $this->eavSetupFactory->create(['setup' => $setup]);
 
+        $eavSetup->removeAttribute(\Magento\Catalog\Model\Product::ENTITY,'skroutz');
         $eavSetup->addAttribute(
             \Magento\Catalog\Model\Product::ENTITY,
             'skroutz',
