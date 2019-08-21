@@ -1,6 +1,5 @@
 {
     "name": "id/module-skroutz",
-    "version": 1.0.0,
     "description": "Skroutz.gr XML Feed Generator",
     "type": "magento2-module",
     "license": "GPL-3.0",

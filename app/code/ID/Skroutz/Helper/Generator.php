@@ -172,7 +172,7 @@ class Generator extends AbstractHelper
 
         $aData['id'] = $oProduct->getId();
         $aData['mpn'] = mb_substr($oProduct->getSku(),0,99,'UTF-8');
-        $aData['brand'] = strtoupper( @mb_substr($oProduct->getAttributeText('manufacturer'),0,99,'UTF-8') );
+        $aData['brand'] = strtoupper( $oProduct->getAttributeText('manufacturer') );
         $aData['title'] = $aData['brand'] . ' ' . mb_substr($oProduct->getName(),0,299,'UTF-8') . ' - ' . $aData['mpn'];
         $aData['description'] = strip_tags($oProduct->getDescription());
         $aData['price'] = preg_replace('/,/', '.', $oProduct->getFinalPrice());
