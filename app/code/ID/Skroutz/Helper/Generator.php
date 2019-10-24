@@ -148,11 +148,6 @@ class Generator extends AbstractHelper
     private function getProducts()
     {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        
-        try{
-        	$appState = $objectManager->get('Magento\Framework\App\State');
-        	$appState->setAreaCode(\Magento\Framework\App\Area::AREA_ADMINHTML);
-		}
 
         $this->collection = $objectManager->create('Magento\Catalog\Model\ResourceModel\Product\Collection');
         $this->collection->addAttributeToFilter('status', 1); //enabled
