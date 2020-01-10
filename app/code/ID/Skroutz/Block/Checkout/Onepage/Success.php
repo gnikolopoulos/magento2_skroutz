@@ -14,8 +14,8 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
 
         $html = "<script>
                 skroutz_analytics('ecommerce', 'addOrder', {
-                    order_id: ".$order->getId().",
-                    revenue:  ".$order->getSubtotalInclTax().",
+                    order_id: ".$order->getIncrementId().",
+                    revenue:  ".($order->getSubtotalInclTax() + $order->getShippingAmount()).",
                     shipping: ".$order->getShippingAmount().",
                     tax:      ".$order->getTaxAmount()."
                 });
@@ -27,7 +27,7 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
         foreach($orderItems as $item) {
             $html .= "<script>
                 skroutz_analytics('ecommerce', 'addItem', {
-                    order_id:   ".$order->getId().",
+                    order_id:   ".$order->getIncrementId().",
                     product_id: ".$item->getProductId().",
                     name:       '".$item->getName()."',
                     price:      ".$item->getPriceInclTax().",
