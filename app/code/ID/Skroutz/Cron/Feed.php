@@ -34,7 +34,10 @@ class Feed
      *
      * @param \Psr\Log\LoggerInterface $logger
      */
-    public function __construct(Generator $helper, \Psr\Log\LoggerInterface $logger)
+    public function __construct(
+        Generator $helper,
+        \Psr\Log\LoggerInterface $logger
+    )
     {
         $this->_helper = $helper;
         $this->logger = $logger;

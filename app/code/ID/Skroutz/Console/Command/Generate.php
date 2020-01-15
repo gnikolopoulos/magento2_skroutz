@@ -26,7 +26,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use \Magento\Framework\App\State;
+use Magento\Framework\App\State;
 use ID\Skroutz\Helper\Generator;
 
 class Generate extends Command
@@ -38,7 +38,10 @@ class Generate extends Command
     protected $_helper;
     private $_state;
 
-    public function __construct(Generator $helper, State $state)
+    public function __construct(
+        Generator $helper,
+        State $state
+    )
     {
         $this->_helper = $helper;
         $this->_state = $state;
@@ -52,7 +55,7 @@ class Generate extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
-        try {
+        try{
             $this->_state->setAreaCode(\Magento\Framework\App\Area::AREA_ADMINHTML);
         } finally {
             $output->writeln( $this->_helper->generateXML() );
