@@ -266,20 +266,22 @@ class Generator extends AbstractHelper
 
         foreach($aIds as $iCategory) {
             if (!in_array($iCategory, $this->excluded)) {
-                $aCategories['bread'] = '';
                 $oCategory = $this->categoryRepository->get($iCategory);
-                $aCategories['cid'] = $oCategory->getId();
-                $aCategories['catpath'] = $oCategory->getPath();
-                $catPath = explode('/', $aCategories['catpath']);
-                foreach($catPath as $cpath) {
-                    $pCategory = $this->categoryRepository->get($cpath);
-                    if( !in_array($pCategory->getName(), $this->notAllowed) && $pCategory->getName() != '') {
-                        if (!in_array($pCategory->getId(), $this->excluded)) {
-                            $aCategories['bread'] .= $pCategory->getName() . ' > ';
+                if( !in_array($oCategory->getParentId(), $this->excluded) ) {
+                    $aCategories['bread'] = '';
+                    $aCategories['cid'] = $oCategory->getId();
+                    $aCategories['catpath'] = $oCategory->getPath();
+                    $catPath = explode('/', $aCategories['catpath']);
+                    foreach($catPath as $cpath) {
+                        $pCategory = $this->categoryRepository->get($cpath);
+                        if( !in_array($pCategory->getName(), $this->notAllowed) && $pCategory->getName() != '') {
+                            if (!in_array($pCategory->getId(), $this->excluded)) {
+                                $aCategories['bread'] .= $pCategory->getName() . ' > ';
+                            }
                         }
                     }
+                    $aCategories['bread'] = mb_substr(trim(substr($aCategories['bread'],0,-3)),0,299,'UTF-8');
                 }
-                $aCategories['bread'] = mb_substr(trim(substr($aCategories['bread'],0,-3)),0,299,'UTF-8');
             }
         }
         return $aCategories;
