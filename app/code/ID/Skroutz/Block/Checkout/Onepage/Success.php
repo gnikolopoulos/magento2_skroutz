@@ -29,7 +29,7 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
                 skroutz_analytics('ecommerce', 'addItem', {
                     order_id:   ".$order->getIncrementId().",
                     product_id: ".$item->getProductId().",
-                    name:       '".$item->getName()."',
+                    name:       '".addslashes($item->getName())."',
                     price:      ".$item->getPriceInclTax().",
                     quantity:   ".$item->getQtyOrdered()."
                 });

@@ -91,7 +91,7 @@ class Generator extends AbstractHelper
         $this->xml->save($this->file);
 
         echo 'Done. Found: '.$this->collection->getSize().' products.'.PHP_EOL;
-        $this->logger->addInfo( 'XML Feed generated in: ' . number_format((microtime(true) - $time_start), 2) . ' seconds' );
+        $this->logger->info( 'XML Feed generated in: ' . number_format((microtime(true) - $time_start), 2) . ' seconds' );
     }
 
     private function init()
@@ -156,6 +156,7 @@ class Generator extends AbstractHelper
         if( !$this->show_outofstock ) {
             $this->stockFilter->addInStockFilterToCollection($this->collection);
         }
+        $this->collection->addFinalPrice();
         $this->collection->load();
 
         $this->iterator->walk( $this->collection->getSelect(), array(array($this, 'productCallback')) );
@@ -171,7 +172,7 @@ class Generator extends AbstractHelper
         $aData['id'] = $oProduct->getId();
         $aData['mpn'] = mb_substr($oProduct->getSku(),0,99,'UTF-8');
         $aData['brand'] = strtoupper( $oProduct->getAttributeText('manufacturer') );
-        $aData['title'] = $aData['brand'] . ' ' . mb_substr($oProduct->getName(),0,299,'UTF-8') . ' - ' . $aData['mpn'];
+        $aData['title'] = mb_substr($oProduct->getName(),0,299,'UTF-8');
         $aData['description'] = strip_tags($oProduct->getDescription());
         $aData['price'] = preg_replace('/,/', '.', $oProduct->getFinalPrice());
 
@@ -198,7 +199,11 @@ class Generator extends AbstractHelper
         $aData['categoryid'] = array_key_exists('cid', $aCats) ? $aCats['cid'] : '';
         $aData['category'] = array_key_exists('bread', $aCats) ? $aCats['bread'] : '';
 
-        $aData['color'] = @mb_substr($oProduct->getAttributeText('color'),0,99,'UTF-8');
+        if( $oProduct->hasData('color') ) {
+            $aData['color'] = @mb_substr($oProduct->getAttributeText('color'),0,99,'UTF-8');
+        } else {
+            $aData['color'] = '';
+        }
 
         if( $oProduct->getTypeId() == 'configurable' ) {
             unset($sizes);
@@ -248,7 +253,7 @@ class Generator extends AbstractHelper
 
         $product->appendChild ( $this->xml->createElement('categoryid', $p['categoryid']) );
 
-        if( $p['color'] != '' && !in_array($p['color'], $this->notAllowed) ) {
+        if( array_key_exists('color', $p) != '' && !in_array($p['color'], $this->notAllowed) ) {
             $product->appendChild ( $this->xml->createElement('color', $p['color']) );
         }
 

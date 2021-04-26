@@ -1,3 +1,5 @@
 <?php /* @var $block \ID\Skroutz\Block\Checkout\Onepage\Success */?>
-
-<?php echo $block->getTrackingCode(); ?>
+<!-- analytics -->
+<?php if( $this->helper('ID\Skroutz\Helper\Data')->getGeneralConfig('enabled') ): ?>
+	<?php echo $block->getTrackingCode(); ?>
+<?php endif; ?>
