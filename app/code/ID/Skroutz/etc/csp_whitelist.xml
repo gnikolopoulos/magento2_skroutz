@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Csp:etc/csp_whitelist.xsd">
+    <policies>
+        <policy id="script-src">
+            <values>
+                <value id="analytics.skroutz.gr" type="host">analytics.skroutz.gr</value>
+                <value id="skroutza.skroutz.gr" type="host">skroutza.skroutz.gr</value>
+                <value id="skroutz" type="host">skroutz.gr</value>
+            </values>
+        </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="analytics.skroutz.gr" type="host">analytics.skroutz.gr</value>
+                <value id="skroutza.skroutz.gr" type="host">skroutza.skroutz.gr</value>
+                <value id="skroutz.gr" type="host">skroutz.gr</value>
+            </values>
+        </policy>
+        <policy id="img-src">
+            <values>
+                <value id="analytics.skroutz.gr" type="host">analytics.skroutz.gr</value>
+                <value id="skroutza.skroutz.gr" type="host">skroutza.skroutz.gr</value>
+                <value id="skroutz.gr" type="host">skroutz.gr</value>
+            </values>
+        </policy>
+    </policies>
+</csp_whitelist>

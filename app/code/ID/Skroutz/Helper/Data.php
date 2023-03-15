@@ -24,7 +24,7 @@ class Data extends AbstractHelper
 
   public function getProductsConfig($code, $storeId = null)
   {
-    return $this->getConfigValue(self::XML_PATH_FEED .'product_collection/'. $code, $storeId) ?: '';
+    return $this->getConfigValue(self::XML_PATH_FEED .'product_collection/'. $code, $storeId);
   }
 
   public function getMessagesConfig($code, $storeId = null)
