@@ -22,11 +22,14 @@
 namespace ID\Skroutz\Cron;
 
 use ID\Skroutz\Helper\Generator;
+use ID\Skroutz\Helper\Data;
 
 class Feed
 {
 
     protected $logger;
+    protected $storeManager;
+    protected $_generator;
     protected $_helper;
 
     /**
@@ -35,11 +38,15 @@ class Feed
      * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
-        Generator $helper,
+        Generator $generator,
+        Data $helper,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Psr\Log\LoggerInterface $logger
     )
     {
+        $this->_generator = $generator;
         $this->_helper = $helper;
+        $this->storeManager = $storeManager;
         $this->logger = $logger;
     }
 
@@ -50,7 +57,16 @@ class Feed
      */
     public function execute()
     {
-        $this->_helper->generateXML();
-        $this->logger->addInfo("Cronjob feed is executed.");
+        $feeds = 0;
+        foreach ($this->storeManager->getStores() as $store) {
+            if (!$this->_helper->getGeneralConfig('enabled', $store->getId())) {
+                continue;
+            }
+
+            $this->logger->addInfo("Feed generating for store: ".$store->getId());
+            $this->_generator->generateXML($store->getId());
+            $feeds++;
+        }
+        $this->logger->addInfo("Generated {$feeds} feeds");
     }
 }

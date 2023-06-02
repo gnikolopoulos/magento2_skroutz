@@ -32,8 +32,7 @@ use ID\Skroutz\Helper\Generator;
 class Generate extends Command
 {
 
-    const NAME_ARGUMENT = "name";
-    const NAME_OPTION = "option";
+    private const STORE = "store";
 
     protected $_helper;
     private $_state;
@@ -58,21 +57,24 @@ class Generate extends Command
         try{
             $this->_state->setAreaCode(\Magento\Framework\App\Area::AREA_ADMINHTML);
         } finally {
-            $output->writeln( $this->_helper->generateXML() );
+            $output->writeln( $this->_helper->generateXML($input->getOption(self::STORE) ?: 0) );
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName("skroutz_feed:generate");
         $this->setDescription("XML Generation");
-        $this->setDefinition([
-            new InputArgument(self::NAME_ARGUMENT, InputArgument::OPTIONAL, "Name"),
-            new InputOption(self::NAME_OPTION, "-a", InputOption::VALUE_NONE, "Option functionality")
-        ]);
+        $this->addOption(
+            self::STORE,
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Store',
+            0
+        );
         parent::configure();
     }
 }

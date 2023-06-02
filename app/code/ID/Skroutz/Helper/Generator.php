@@ -78,15 +78,15 @@ class Generator extends AbstractHelper
         parent::__construct($context);
     }
 
-    public function generateXML()
+    public function generateXML(int $storeId)
     {
         $time_start = microtime(true);
-        $this->init();
+        $this->init($storeId);
         $this->createXML();
         $this->openXML();
         $this->base_node = $this->xml->getElementsByTagName('products')->item(0);
 
-        $this->getProducts();
+        $this->getProducts($storeId);
 
         $this->xml->formatOutput = true;
         $this->xml->save($this->file);
@@ -95,23 +95,23 @@ class Generator extends AbstractHelper
         $this->logger->addInfo( 'XML Feed generated in: ' . number_format((microtime(true) - $time_start), 2) . ' seconds' );
     }
 
-    private function init()
+    private function init(int $storeId)
     {
-        $this->store_name = $this->helper->getGeneralConfig('store_name');
-        $this->xml_file_name = $this->helper->getGeneralConfig('xml_filename');
-        $this->xml_path = $this->helper->getGeneralConfig('xml_path');
+        $this->store_name = $this->helper->getGeneralConfig('store_name', $storeId);
+        $this->xml_file_name = $this->helper->getGeneralConfig('xml_filename', $storeId);
+        $this->xml_path = $this->helper->getGeneralConfig('xml_path', $storeId);
         $this->file = $this->xml_path . $this->xml_file_name;
 
-        $this->show_outofstock = $this->helper->getProductsConfig('show_out_of_stock');
-        $this->brand_attribute = $this->helper->getProductsConfig('brand_attribute');
-        $this->excluded = explode(',', $this->helper->getProductsConfig('excluded_categories'));
+        $this->show_outofstock = $this->helper->getProductsConfig('show_out_of_stock', $storeId);
+        $this->brand_attribute = $this->helper->getProductsConfig('brand_attribute', $storeId);
+        $this->excluded = explode(',', $this->helper->getProductsConfig('excluded_categories', $storeId));
 
-        $this->instock_msg = $this->helper->getMessagesConfig('available');
-        $this->nostock_msg = $this->helper->getMessagesConfig('out_of_stock');
-        $this->backorder_msg = $this->helper->getMessagesConfig('backorder');
+        $this->instock_msg = $this->helper->getMessagesConfig('available', $storeId);
+        $this->nostock_msg = $this->helper->getMessagesConfig('out_of_stock', $storeId);
+        $this->backorder_msg = $this->helper->getMessagesConfig('backorder', $storeId);
 
-        $this->base_url = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
-        $this->media_url = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product';
+        $this->base_url = $this->storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_WEB);
+        $this->media_url = $this->storeManager->getStore($storeId)->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product';
     }
 
     private function createXML()
@@ -147,7 +147,7 @@ class Generator extends AbstractHelper
         $this->xml->load($this->file);
     }
 
-    private function getProducts()
+    private function getProducts(int $storeId)
     {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 
@@ -159,14 +159,21 @@ class Generator extends AbstractHelper
         if( !$this->show_outofstock ) {
             $this->stockFilter->addInStockFilterToCollection($this->collection);
         }
+        $this->collection->addStoreFilter($storeId);
         $this->collection->load();
 
-        $this->iterator->walk( $this->collection->getSelect(), array(array($this, 'productCallback')) );
+        $this->iterator->walk(
+            $this->collection->getSelect(),
+            [[$this, 'productCallback']],
+            [
+                'store' => $storeId,
+            ]
+        );
     }
 
     public function productCallback($args)
     {
-        $oProduct = $this->productRepository->getById($args['row']['entity_id']);
+        $oProduct = $this->productRepository->getById($args['row']['entity_id'])->setStoreId($args['store']);
         $aCats = $this->getCategories($oProduct);
 
         $aData = array();
