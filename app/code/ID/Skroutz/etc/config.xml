@@ -5,6 +5,9 @@
 			<general>
 				<enabled/>
 			</general>
+			<product_collection>
+				<brand_attribute>manufacturer</brand_attribute>
+			</product_collection>
 		</skroutz>
 	</default>
 </config>

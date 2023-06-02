@@ -41,6 +41,7 @@ class Generator extends AbstractHelper
     private $xml_path;
     private $file;
     private $show_outofstock;
+    private $brand_attribute;
     private $excluded;
     private $instock_msg;
     private $nostock_msg;
@@ -91,7 +92,7 @@ class Generator extends AbstractHelper
         $this->xml->save($this->file);
 
         echo 'Done. Found: '.$this->collection->getSize().' products.'.PHP_EOL;
-        $this->logger->info( 'XML Feed generated in: ' . number_format((microtime(true) - $time_start), 2) . ' seconds' );
+        $this->logger->addInfo( 'XML Feed generated in: ' . number_format((microtime(true) - $time_start), 2) . ' seconds' );
     }
 
     private function init()
@@ -102,6 +103,7 @@ class Generator extends AbstractHelper
         $this->file = $this->xml_path . $this->xml_file_name;
 
         $this->show_outofstock = $this->helper->getProductsConfig('show_out_of_stock');
+        $this->brand_attribute = $this->helper->getProductsConfig('brand_attribute');
         $this->excluded = explode(',', $this->helper->getProductsConfig('excluded_categories'));
 
         $this->instock_msg = $this->helper->getMessagesConfig('available');
@@ -153,10 +155,10 @@ class Generator extends AbstractHelper
         $this->collection->addAttributeToFilter('status', 1); //enabled
         $this->collection->addAttributeToFilter('visibility', 4); //catalog, search
         $this->collection->addAttributeToFilter('skroutz', 1);
+        $this->collection->addFinalPrice();
         if( !$this->show_outofstock ) {
             $this->stockFilter->addInStockFilterToCollection($this->collection);
         }
-        $this->collection->addFinalPrice();
         $this->collection->load();
 
         $this->iterator->walk( $this->collection->getSelect(), array(array($this, 'productCallback')) );
@@ -171,7 +173,7 @@ class Generator extends AbstractHelper
 
         $aData['id'] = $oProduct->getId();
         $aData['mpn'] = mb_substr($oProduct->getSku(),0,99,'UTF-8');
-        $aData['brand'] = strtoupper( $oProduct->getAttributeText('manufacturer') );
+        $aData['brand'] = strtoupper( $oProduct->getAttributeText($this->brand_attribute) );
         $aData['title'] = mb_substr($oProduct->getName(),0,299,'UTF-8');
         $aData['description'] = strip_tags($oProduct->getDescription() ?: '');
         $aData['price'] = preg_replace('/,/', '.', $oProduct->getFinalPrice());
@@ -207,16 +209,34 @@ class Generator extends AbstractHelper
 
         if( $oProduct->getTypeId() == 'configurable' ) {
             unset($sizes);
+            $size_attribute_name = $oProduct->getTypeInstance()->getConfigurableAttributes($oProduct)->getFirstItem()->getProductAttribute()->getAttributeCode();
+
+            $aData['variations'] = [];
             foreach($oProduct->getTypeInstance()->getSalableUsedProducts($oProduct) as $simple_product) {
-              $stockItem = $this->stockRegistry->getStockItem($simple_product->getId(), 1);
-              if( !in_array($simple_product->getAttributeText('size'), $this->notAllowed) && $stockItem->getIsInStock() ) {
-                $sizes[] = $simple_product->getAttributeText('size');
-              }
+                if (in_array($simple_product->getAttributeText($size_attribute_name), $this->notAllowed)) {
+                    continue;
+                }
+
+                $stockItem = $this->stockRegistry->getStockItem($simple_product->getId(), 1);
+                if ($stockItem->getIsInStock()) {
+                    $sizes[] = $simple_product->getAttributeText($size_attribute_name);
+                    $aData['variations'][] = [
+                        'id' => $oProduct->getId() . '.' . $simple_product->getAttributeText($size_attribute_name),
+                        'link' => $aData['link'],
+                        'availability' => $aData['stock_descrip'],
+                        'manufacturersku' => $aData['mpn'],
+                        'ean' => $simple_product->getSku(),
+                        'price_with_vat' => $aData['price'],
+                        'size' => $simple_product->getAttributeText($size_attribute_name),
+                        'quantity' => $stockItem->getQty(),
+                    ];
+                }
             }
-            if( $sizes && count($sizes) > 0 ) {
-              $aData['size'] = implode(',', $sizes);
+
+            if( isset($sizes) && count($sizes) > 0 ) {
+                $aData['size'] = implode(',', $sizes);
             } else {
-              $aData['size'] = '';
+                $aData['size'] = '';
             }
         }
         $this->appendXML($aData);
@@ -227,38 +247,53 @@ class Generator extends AbstractHelper
         $product = $this->xml->createElement("product");
         $this->base_node->appendChild( $product );
 
-        $product->appendChild ( $this->xml->createElement('id', $p['id']) );
-        $product->appendChild ( $this->xml->createElement('mpn', $p['mpn']) );
-        $product->appendChild ( $this->xml->createElement('manufacturer', $p['brand']) );
-        $product->appendChild ( $this->xml->createElement('name', ucwords(htmlspecialchars(trim($p['title'])))) );
+        $product->appendChild( $this->xml->createElement('id', $p['id']) );
+        $product->appendChild( $this->xml->createElement('mpn', $p['mpn']) );
+        $product->appendChild( $this->xml->createElement('manufacturer', $p['brand']) );
+        $product->appendChild( $this->xml->createElement('name', ucwords(htmlspecialchars(trim($p['title'])))) );
 
         $description = $product->appendChild($this->xml->createElement('description'));
         $description->appendChild($this->xml->createCDATASection( $p['description'] ));
 
-        $product->appendChild ( $this->xml->createElement('price', $p['price']) );
-        $product->appendChild ( $this->xml->createElement('link', $p['link']) );
-        $product->appendChild ( $this->xml->createElement('image', $p['image_link_large']) );
+        $product->appendChild( $this->xml->createElement('price', $p['price']) );
+        $product->appendChild( $this->xml->createElement('link', $p['link']) );
+        $product->appendChild( $this->xml->createElement('image', $p['image_link_large']) );
 
         if( array_key_exists('additional_imageurl', $p) ) {
             foreach($p['additional_imageurl'] as $image) {
-                $product->appendChild ( $this->xml->createElement('additional_imageurl', $image) );
+                $product->appendChild( $this->xml->createElement('additional_imageurl', $image) );
             }
         }
 
-        $product->appendChild ( $this->xml->createElement('InStock', $p['stock']) );
-        $product->appendChild ( $this->xml->createElement('Availability', $p['stock_descrip']) );
+        $product->appendChild( $this->xml->createElement('InStock', $p['stock']) );
+        $product->appendChild( $this->xml->createElement('Availability', $p['stock_descrip']) );
 
         $category = $product->appendChild($this->xml->createElement('category'));
         $category->appendChild($this->xml->createCDATASection( $p['category'] ));
 
-        $product->appendChild ( $this->xml->createElement('categoryid', $p['categoryid']) );
+        $product->appendChild( $this->xml->createElement('categoryid', $p['categoryid']) );
 
-        if( array_key_exists('color', $p) != '' && !in_array($p['color'], $this->notAllowed) ) {
-            $product->appendChild ( $this->xml->createElement('color', $p['color']) );
+        if( array_key_exists('color', $p) && $p['color'] != '' && !in_array($p['color'], $this->notAllowed) ) {
+            $product->appendChild( $this->xml->createElement('color', $p['color']) );
         }
 
         if( array_key_exists('size', $p) && $p['size'] != '' ) {
-            $product->appendChild ( $this->xml->createElement('size', $p['size']) );
+            $product->appendChild( $this->xml->createElement('size', $p['size']) );
+        }
+
+        if (array_key_exists('variations', $p) && count($p['variations']) > 0) {
+            $variations = $product->appendChild($this->xml->createElement('variations'));
+            foreach ($p['variations'] as $v) {
+                $variation = $variations->appendChild($this->xml->createElement('variation'));
+                $variation->appendChild( $this->xml->createElement('variationid', $v['id']) );
+                $variation->appendChild( $this->xml->createElement('link', $v['link']) );
+                $variation->appendChild( $this->xml->createElement('availability', $v['availability']) );
+                $variation->appendChild( $this->xml->createElement('manufacturersku', $v['manufacturersku']) );
+                $variation->appendChild( $this->xml->createElement('ean', $v['ean']) );
+                $variation->appendChild( $this->xml->createElement('price_with_vat', $v['price_with_vat']) );
+                $variation->appendChild( $this->xml->createElement('size', $v['size']) );
+                $variation->appendChild( $this->xml->createElement('quantity', $v['quantity']) );
+            }
         }
     }
 

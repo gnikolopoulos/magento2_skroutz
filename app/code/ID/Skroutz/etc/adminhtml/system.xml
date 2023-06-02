@@ -41,6 +41,11 @@
 					<comment/>
 				</field>
 
+				<field id="brand_attribute" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+					<label>Brand attribute to use</label>
+					<comment/>
+				</field>
+
 				<field id="show_out_of_stock" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="select">
 					<label>Show out of stock products</label>
 					<comment/>
