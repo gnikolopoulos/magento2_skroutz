@@ -31,8 +31,9 @@ class Generator extends AbstractHelper
     protected $helper;
     protected $storeManager;
     protected $iterator;
-    protected $productRepository;
-    protected $categoryRepository;
+    protected $productCollectionFactory;
+    protected $productFactory;
+    protected $categoryFactory;
     protected $stockFilter;
     protected $stockRegistry;
 
@@ -55,6 +56,15 @@ class Generator extends AbstractHelper
 
     /**
      * @param \Magento\Framework\App\Helper\Context $context
+     * @param \Psr\Log\LoggerInterface $logger
+     * @param ID\Skroutz\Helper\Data $helper
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param \Magento\Framework\Model\ResourceModel\Iterator $iterator
+     * @param \Magento\Catalog\Model\ProductFactory $productFactory
+     * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory
+     * @param \Magento\Catalog\Model\CategoryFactory $categoryFactory
+     * @param \Magento\CatalogInventory\Helper\Stock $stockFilter
+     * @param \Magento\CatalogInventory\Model\StockRegistry $stockRegistry
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
@@ -62,8 +72,9 @@ class Generator extends AbstractHelper
         Data $helper,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Model\ResourceModel\Iterator $iterator,
-        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
-        \Magento\Catalog\Api\CategoryRepositoryInterface $categoryRepository,
+        \Magento\Catalog\Model\ProductFactory $productFactory,
+        \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollectionFactory,
+        \Magento\Catalog\Model\CategoryFactory $categoryFactory,
         \Magento\CatalogInventory\Helper\Stock $stockFilter,
         \Magento\CatalogInventory\Model\StockRegistry $stockRegistry
     ) {
@@ -71,10 +82,11 @@ class Generator extends AbstractHelper
         $this->helper = $helper;
         $this->iterator = $iterator;
         $this->storeManager = $storeManager;
-        $this->productRepository = $productRepository;
+        $this->productFactory = $productFactory;
+        $this->productCollectionFactory = $productCollectionFactory;
         $this->stockFilter = $stockFilter;
         $this->stockRegistry = $stockRegistry;
-        $this->categoryRepository = $categoryRepository;
+        $this->categoryFactory = $categoryFactory;
         parent::__construct($context);
     }
 
@@ -149,18 +161,14 @@ class Generator extends AbstractHelper
 
     private function getProducts(int $storeId)
     {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-
-        $this->collection = $objectManager->create('Magento\Catalog\Model\ResourceModel\Product\Collection');
+        $this->collection = $this->productCollectionFactory->create();
         $this->collection->addAttributeToFilter('status', 1); //enabled
         $this->collection->addAttributeToFilter('visibility', 4); //catalog, search
         $this->collection->addAttributeToFilter('skroutz', 1);
-        $this->collection->addFinalPrice();
         if( !$this->show_outofstock ) {
             $this->stockFilter->addInStockFilterToCollection($this->collection);
         }
         $this->collection->addStoreFilter($storeId);
-        $this->collection->load();
 
         $this->iterator->walk(
             $this->collection->getSelect(),
@@ -173,7 +181,9 @@ class Generator extends AbstractHelper
 
     public function productCallback($args)
     {
-        $oProduct = $this->productRepository->getById($args['row']['entity_id'])->setStoreId($args['store']);
+        $oProduct = $this->productFactory->create()
+            ->setStoreId($args['store'])
+            ->load($args['row']['entity_id']);
         $aCats = $this->getCategories($oProduct);
 
         $aData = array();
@@ -313,14 +323,14 @@ class Generator extends AbstractHelper
 
         foreach($aIds as $iCategory) {
             if (!in_array($iCategory, $this->excluded)) {
-                $oCategory = $this->categoryRepository->get($iCategory);
+                $oCategory = $this->categoryFactory->create()->load($iCategory);
                 if( !in_array($oCategory->getParentId(), $this->excluded) ) {
                     $aCategories['bread'] = '';
                     $aCategories['cid'] = $oCategory->getId();
                     $aCategories['catpath'] = $oCategory->getPath();
                     $catPath = explode('/', $aCategories['catpath']);
                     foreach($catPath as $cpath) {
-                        $pCategory = $this->categoryRepository->get($cpath);
+                        $pCategory = $this->categoryFactory->create()->load($cpath);
                         if( !in_array($pCategory->getName(), $this->notAllowed) && $pCategory->getName() != '') {
                             if (!in_array($pCategory->getId(), $this->excluded)) {
                                 $aCategories['bread'] .= $pCategory->getName() . ' > ';

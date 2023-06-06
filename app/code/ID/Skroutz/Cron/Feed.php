@@ -29,24 +29,31 @@ class Feed
 
     protected $logger;
     protected $storeManager;
+    protected $emulation;
     protected $_generator;
     protected $_helper;
 
     /**
      * Constructor
      *
+     * @param ID\Skroutz\Helper\Generator $generator
+     * @param ID\Skroutz\Helper\Data $helper
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param \Magento\Store\Model\App\Emulation $emulation
      * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
         Generator $generator,
         Data $helper,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Store\Model\App\Emulation $emulation,
         \Psr\Log\LoggerInterface $logger
     )
     {
         $this->_generator = $generator;
         $this->_helper = $helper;
         $this->storeManager = $storeManager;
+        $this->emulation = $emulation;
         $this->logger = $logger;
     }
 
@@ -58,15 +65,17 @@ class Feed
     public function execute()
     {
         $feeds = 0;
-        foreach ($this->storeManager->getStores() as $store) {
+        foreach ($this->storeManager->getStores(true) as $store) {
             if (!$this->_helper->getGeneralConfig('enabled', $store->getId())) {
                 continue;
             }
 
             $this->logger->addInfo("Feed generating for store: ".$store->getId());
+            $this->emulation->startEnvironmentEmulation($store->getId(), \Magento\Framework\App\Area::AREA_FRONTEND, false);
             $this->_generator->generateXML($store->getId());
+            $this->emulation->stopEnvironmentEmulation();
             $feeds++;
         }
-        $this->logger->addInfo("Generated {$feeds} feeds");
+        $this->logger->addInfo("Generated {$feeds} skroutz feeds");
     }
 }
