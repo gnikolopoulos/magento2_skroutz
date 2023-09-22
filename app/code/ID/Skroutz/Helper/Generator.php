@@ -104,7 +104,7 @@ class Generator extends AbstractHelper
         $this->xml->save($this->file);
 
         echo 'Done. Found: '.$this->collection->getSize().' products.'.PHP_EOL;
-        $this->logger->addInfo( 'XML Feed generated in: ' . number_format((microtime(true) - $time_start), 2) . ' seconds' );
+        $this->logger->info( 'XML Feed generated in: ' . number_format((microtime(true) - $time_start), 2) . ' seconds' );
     }
 
     private function init(int $storeId)
@@ -116,7 +116,7 @@ class Generator extends AbstractHelper
 
         $this->show_outofstock = $this->helper->getProductsConfig('show_out_of_stock', $storeId);
         $this->brand_attribute = $this->helper->getProductsConfig('brand_attribute', $storeId);
-        $this->excluded = explode(',', $this->helper->getProductsConfig('excluded_categories', $storeId));
+        $this->excluded = explode(',', $this->helper->getProductsConfig('excluded_categories', $storeId) ?: '');
 
         $this->instock_msg = $this->helper->getMessagesConfig('available', $storeId);
         $this->nostock_msg = $this->helper->getMessagesConfig('out_of_stock', $storeId);
@@ -266,7 +266,7 @@ class Generator extends AbstractHelper
 
         $product->appendChild( $this->xml->createElement('id', $p['id']) );
         $product->appendChild( $this->xml->createElement('mpn', $p['mpn']) );
-        $product->appendChild( $this->xml->createElement('manufacturer', $p['brand']) );
+        $product->appendChild( $this->xml->createElement('manufacturer', htmlspecialchars($p['brand'])) );
         $product->appendChild( $this->xml->createElement('name', ucwords(htmlspecialchars(trim($p['title'])))) );
 
         $description = $product->appendChild($this->xml->createElement('description'));

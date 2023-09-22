@@ -59,6 +59,8 @@ class Generate extends Command
         } finally {
             $output->writeln( $this->_helper->generateXML($input->getOption(self::STORE) ?: 0) );
         }
+
+        return 1;
     }
 
     /**
