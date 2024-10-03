@@ -52,6 +52,7 @@ class Generator extends AbstractHelper
     private $xml;
     private $base_node;
     private $collection;
+    private $create_zip;
     private $notAllowed = array('Νο', 'Όχι', 'Root Catalog', 'Default Category');
 
     /**
@@ -103,6 +104,13 @@ class Generator extends AbstractHelper
         $this->xml->formatOutput = true;
         $this->xml->save($this->file);
 
+        if ($this->create_zip) {
+            $zip = new \ZipArchive();
+            $zip->open($this->file . '.zip', \ZipArchive::CREATE);
+            $zip->addFile($this->file, $this->xml_file_name);
+            $zip->close();
+        }
+
         echo 'Done. Found: '.$this->collection->getSize().' products.'.PHP_EOL;
         $this->logger->info( 'XML Feed generated in: ' . number_format((microtime(true) - $time_start), 2) . ' seconds' );
     }
@@ -113,6 +121,7 @@ class Generator extends AbstractHelper
         $this->xml_file_name = $this->helper->getGeneralConfig('xml_filename', $storeId);
         $this->xml_path = $this->helper->getGeneralConfig('xml_path', $storeId);
         $this->file = $this->xml_path . $this->xml_file_name;
+        $this->create_zip = $this->helper->getGeneralConfig('create_zip', $storeId);
 
         $this->show_outofstock = $this->helper->getProductsConfig('show_out_of_stock', $storeId);
         $this->brand_attribute = $this->helper->getProductsConfig('brand_attribute', $storeId);
