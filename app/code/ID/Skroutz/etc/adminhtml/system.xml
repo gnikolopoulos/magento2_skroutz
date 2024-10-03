@@ -17,17 +17,17 @@
 				</field>
 
 				<label>General Configuration</label>
-				<field id="store_name" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+				<field id="store_name" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
 					<label>Store name</label>
 					<comment/>
 				</field>
 
-				<field id="xml_filename" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+				<field id="xml_filename" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="text">
 					<label>XML file name</label>
 					<comment/>
 				</field>
 
-				<field id="xml_path" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+				<field id="xml_path" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="40" translate="label" type="text">
 					<label>Absolute path to XML file</label>
 					<comment/>
 				</field>
@@ -47,12 +47,12 @@
 					<comment/>
 				</field>
 
-				<field id="brand_attribute" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+				<field id="brand_attribute" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
 					<label>Brand attribute to use</label>
 					<comment/>
 				</field>
 
-				<field id="show_out_of_stock" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="select">
+				<field id="show_out_of_stock" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="select">
 					<label>Show out of stock products</label>
 					<comment/>
 					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -67,12 +67,12 @@
 					<comment/>
 				</field>
 
-				<field id="out_of_stock" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+				<field id="out_of_stock" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
 					<label>Out of stock message</label>
 					<comment/>
 				</field>
 
-				<field id="backorder" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+				<field id="backorder" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label" type="text">
 					<label>Backorder message</label>
 					<comment/>
 				</field>
@@ -87,7 +87,7 @@
 					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
 				</field>
 
-				<field id="shop_id" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="text">
+				<field id="shop_id" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label" type="text">
 					<label>Shop ID</label>
 					<comment/>
 				</field>
