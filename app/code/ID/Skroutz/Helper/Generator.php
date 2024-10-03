@@ -226,6 +226,7 @@ class Generator extends AbstractHelper
 
         if( $oProduct->getTypeId() == 'configurable' ) {
             unset($sizes);
+            $total_qty = 0;
             $size_attribute_name = $oProduct->getTypeInstance()->getConfigurableAttributes($oProduct)->getFirstItem()->getProductAttribute()->getAttributeCode();
 
             $aData['variations'] = [];
@@ -247,6 +248,7 @@ class Generator extends AbstractHelper
                         'size' => $simple_product->getAttributeText($size_attribute_name),
                         'quantity' => $stockItem->getQty(),
                     ];
+                    $total_qty += $stockItem->getQty();
                 }
             }
 
@@ -255,6 +257,9 @@ class Generator extends AbstractHelper
             } else {
                 $aData['size'] = '';
             }
+            $aData['quantity'] = $total_qty;
+        } else {
+            $aData['quantity'] = $this->stockRegistry->getStockItem($oProduct->getId(), 1)->getQty();
         }
         $this->appendXML($aData);
     }
@@ -296,6 +301,10 @@ class Generator extends AbstractHelper
 
         if( array_key_exists('size', $p) && $p['size'] != '' ) {
             $product->appendChild( $this->xml->createElement('size', $p['size']) );
+        }
+
+        if( array_key_exists('quantity', $p) && $p['quantity'] != '' ) {
+            $product->appendChild( $this->xml->createElement('quantity', $p['quantity']) );
         }
 
         if (array_key_exists('variations', $p) && count($p['variations']) > 0) {
