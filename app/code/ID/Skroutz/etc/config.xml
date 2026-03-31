@@ -9,5 +9,28 @@
 				<brand_attribute>manufacturer</brand_attribute>
 			</product_collection>
 		</skroutz>
+
+		<payment>
+			<skroutz>
+				<active>0</active>
+				<model>ID\Skroutz\Model\Payment\Skroutz</model>
+				<order_status>pending</order_status>
+				<title>Skroutz</title>
+				<allowspecific>0</allowspecific>
+				<group>offline</group>
+			</skroutz>
+		</payment>
+
+		<carriers>
+			<skroutz>
+				<model>ID\Skroutz\Model\Carrier\Skroutz</model>
+				<active>0</active>
+				<title>Skroutz</title>
+				<name>Skroutz</name>
+				<price>0.00</price>
+				<specificerrmsg>This shipping method is not available. To use this shipping method, please contact us.</specificerrmsg>
+				<sallowspecific>0</sallowspecific>
+			</skroutz>
+		</carriers>
 	</default>
 </config>
